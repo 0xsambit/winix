@@ -57,7 +57,98 @@ Winix is a cross-platform command-line application designed to bridge the gap be
 - Ownership control (`chown`)
 - System information retrieval (`uname`)
 - Process monitoring (`ps`)
+- Git version control integration with full command support
+- System monitoring tools (`sensors`, `free`, `uptime`, `df`)
+- Directory navigation commands (`cd`, `pwd`, `ls`)
 - Extensible architecture for additional commands
+
+### **Advanced Git Integration**
+
+- Native Git command execution through system Git
+- Interactive Git mode for complex operations
+- Real-time repository status and branch information
+- Git status, log, commit, push, pull, and branch management
+- Repository detection and branch display in CLI prompt
+- Integrated Git panels in TUI interface
+
+### **Modern TUI Interface**
+
+- Beautiful terminal user interface with responsive design
+- Multi-tab dashboard (System, Processes, Memory, Disks, Sensors, Files, Git)
+- Real-time system monitoring and process information
+- Interactive command execution within TUI
+- Git repository visualization and management
+- File browser with directory navigation
+- Context-sensitive help system
+
+## Feature Documentation
+
+### Command Reference
+
+| Command | Description | Usage Examples |
+|---------|-------------|----------------|
+| **chmod** | Change file permissions | `chmod 755 file.txt`<br>`chmod u+x script.sh`<br>`chmod -R 644 directory/` |
+| **chown** | Change file ownership | `chown user file.txt`<br>`chown user:group file.txt`<br>`chown :group file.txt` |
+| **uname** | Display system information | `uname` - Show system details |
+| **ps** | List running processes | `ps` - Show active processes |
+| **sensors** | Show hardware sensors | `sensors` - Display temperature and hardware info |
+| **free** | Display memory usage | `free` - Show memory statistics |
+| **uptime** | Show system uptime | `uptime` - Display boot time and load |
+| **df** | Display disk usage | `df` - Show filesystem disk space usage |
+| **cd** | Change directory | `cd /path/to/directory` |
+| **pwd** | Print working directory | `pwd` - Show current directory |
+| **ls** | List directory contents | `ls` - List files in current directory<br>`ls /path` - List files in specified path |
+| **git** | Git version control | `git status`, `git log`, `git add`, `git commit` |
+| **help** | Show command help | `help` - Display all available commands |
+
+### Git Integration Features
+
+| Feature | Description | Access Method |
+|---------|-------------|---------------|
+| **Command Execution** | Execute any Git command through Winix | `git <command> [options]` |
+| **Interactive Mode** | Enter dedicated Git command mode | `git --interactive` |
+| **Repository Detection** | Automatic Git repository detection | Automatic in CLI prompt and TUI |
+| **Branch Information** | Display current branch in prompt | Automatic display when in Git repo |
+| **Status Monitoring** | Real-time Git status in TUI | TUI Git tab |
+| **Commit History** | View recent commits and log | TUI Git tab or `git log` |
+| **Repository Info** | Repository path and status display | TUI Git tab |
+
+#### Supported Git Commands
+- **Repository Management**: `init`, `clone`, `remote`
+- **File Operations**: `add`, `commit`, `status`, `diff`
+- **Branch Operations**: `branch`, `checkout`, `merge`
+- **Remote Operations**: `push`, `pull`, `fetch`
+- **History**: `log`, `show`, `reflog`
+- **Staging**: `stash`, `reset`, `revert`
+- **And more**: Full Git command compatibility
+
+### TUI Interface Features
+
+#### Dashboard Tabs
+
+| Tab | Purpose | Features |
+|-----|---------|----------|
+| **System** | System information overview | OS details, kernel info, architecture, hostname, CPU count |
+| **Processes** | Process monitoring | Real-time process list, resource usage |
+| **Memory** | Memory usage statistics | RAM usage, available memory, memory breakdown |
+| **Disks** | Storage information | Disk space usage, filesystem details, mount points |
+| **Sensors** | Hardware monitoring | Temperature sensors, hardware status |
+| **Files** | File browser | Directory navigation, file listing, path display |
+| **Git** | Git repository management | Repository info, branch status, commit history, working tree status |
+
+#### Interactive Features
+- **Navigation**: Tab/Arrow keys for tab switching
+- **Command Mode**: Press 'C' to enter interactive command execution
+- **Help System**: Press 'H' for context-sensitive help
+- **Real-time Updates**: Automatic refresh of system information
+- **Responsive Design**: Adapts to terminal size and provides optimal layout
+
+#### Git TUI Panels
+- **Repository Information**: Current repository path and status
+- **Branch Information**: Active branch with visual indicators
+- **Working Tree Status**: Real-time display of modified, staged, and untracked files
+- **Recent Commits**: Interactive commit history with details
+- **Quick Commands**: Easy access to common Git operations
 
 ## Installation
 
