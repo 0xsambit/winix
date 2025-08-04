@@ -20,6 +20,8 @@ use winapi::um::memoryapi::LocalFree;
 #[cfg(windows)]
 use std::os::windows::ffi::OsStringExt;
 
+use colored::*;
+
 /// Main entry point for chown command (only works on Windows)
 #[cfg(windows)]
 pub fn execute(args: &[&str]) {

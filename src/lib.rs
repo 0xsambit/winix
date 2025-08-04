@@ -13,6 +13,8 @@ pub mod disown;
 pub mod df;
 pub mod free;
 pub mod git;
+#[cfg(windows)]
+pub mod nice;
 pub mod powershell;
 pub mod ps;
 pub mod sensors;

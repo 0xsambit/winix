@@ -18,6 +18,7 @@ tokio = { version = "1.37", features = ["full"] }
 futures = "0.3"
 bytes = "1.0"
 rustyline = "13.0"
+log = "0.4"
 winapi = { version = "0.3", features = ["winnt", "handleapi", "processthreadsapi", "securitybaseapi", "accctrl", "aclapi", "winerror"] }
 windows-acl = "0.3"
 
@@ -43,7 +44,6 @@ winapi = { version = "0.3.9", features = [
     "winbase"
 ] }
 windows-acl = "0.3.0"
-colored = "2.0"
 
 [dev-dependencies]
 tempfile = "3.8"

@@ -13,6 +13,8 @@ mod free;
 mod git;
 #[cfg(windows)]
 mod kill;
+#[cfg(windows)]
+mod nice;
 mod powershell;
 mod ps;
 mod sensors;
@@ -129,6 +131,15 @@ fn handle_command(line: &str) {
                 println!("{}", format!("kill: {}", e).red());
             }
         }
+        
+        #[cfg(windows)]
+        "nice" => {
+            let args: Vec<&str> = parts[1..].iter().copied().collect();
+            match winix::nice::execute(&args) {
+                Ok(_) => {}
+                Err(e) => println!("{}", format!("nice: {}", e).red()),
+            }
+        }
 
         #[cfg(windows)]
         "chmod" | "chown" => {
@@ -202,7 +213,7 @@ fn show_splash_screen() {
     println!();
     println!("{}", "Available Commands:".bold().white());
     println!(
-        "  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}",
+        "  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}",
         "cd".bold().yellow(),
         "chmod".bold().yellow(),
         "chown".bold().yellow(),
@@ -212,6 +223,7 @@ fn show_splash_screen() {
         "git".bold().yellow(),
         "kill".bold().yellow(),
         "ls".bold().yellow(),
+        "nice".bold().yellow(),
         "ps".bold().yellow(),
         "psh/powershell".bold().cyan(),
         "pwd".bold().yellow(),
