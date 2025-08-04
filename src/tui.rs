@@ -240,6 +240,32 @@ impl App {
                     }
                 }
             }
+            #[cfg(windows)]
+            "nice" => {
+                if parts.len() < 2 {
+                    self.command_output
+                        .push("Usage: nice [-increment | -n increment] command [argument...]".to_string());
+                    self.command_output.push("".to_string());
+                    self.command_output.push("Priority increments (Unix nice values):".to_string());
+                    self.command_output.push("  -20 to -16  Realtime priority (requires admin)".to_string());
+                    self.command_output.push("  -15 to -11  High priority".to_string());
+                    self.command_output.push("  -10 to -6   Above normal priority".to_string());
+                    self.command_output.push("  -5 to +5    Normal priority (default)".to_string());
+                    self.command_output.push("  +6 to +10   Below normal priority".to_string());
+                    self.command_output.push("  +11 to +19  Idle priority".to_string());
+                    self.command_output.push("".to_string());
+                    self.command_output.push("Examples:".to_string());
+                    self.command_output.push("  nice notepad.exe".to_string());
+                    self.command_output.push("  nice -10 calc.exe".to_string());
+                    self.command_output.push("  nice -n 15 ping google.com".to_string());
+                } else {
+                    let args: Vec<&str> = parts[1..].to_vec();
+                    let output = capture_nice_output(&args);
+                    for line in output.lines() {
+                        self.command_output.push(line.to_string());
+                    }
+                }
+            }
             "clear" => {
                 self.command_output.clear();
             }
@@ -271,6 +297,9 @@ impl App {
                     .push("  git          - Git version control".to_string());
                 self.command_output
                     .push("  psh          - PowerShell commands".to_string());
+                #[cfg(windows)]
+                self.command_output
+                    .push("  nice         - Run command with priority".to_string());
                 self.command_output
                     .push("  clear        - Clear output".to_string());
                 self.command_output
@@ -1515,4 +1544,20 @@ fn render_git_recent_commits(f: &mut Frame, area: Rect) {
         )
         .wrap(Wrap { trim: true });
     f.render_widget(paragraph, area);
+}
+
+#[cfg(windows)]
+fn capture_nice_output(args: &[&str]) -> String {
+    // Use the nice module to execute the command
+    match crate::nice::execute(args) {
+        Ok(_) => {
+            // If successful, the nice module will print its own success message
+            // We'll return a simple confirmation
+            "Command executed successfully with nice priority".to_string()
+        }
+        Err(e) => {
+            // Return the error message from the nice module
+            format!("nice: {}", e)
+        }
+    }
 }
