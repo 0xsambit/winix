@@ -28,7 +28,7 @@ Key features:
 use colored::*;
 use log::debug;
 use std::ffi::OsString;
-use std::os::windows::ffi::{OsStringExt, OsStrExt};
+use std::os::windows::ffi::{OsStrExt};
 use std::ptr;
 use winapi::um::processthreadsapi::{CreateProcessW, PROCESS_INFORMATION, STARTUPINFOW};
 use winapi::um::winbase::{

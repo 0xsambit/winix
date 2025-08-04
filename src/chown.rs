@@ -1,5 +1,11 @@
 #[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
+#[cfg(windows)]
+use std::os::windows::ffi::OsStringExt;
+#[cfg(windows)]
+use std::ffi::OsStr;
+#[cfg(windows)]
+use std::ptr;
 
 #[cfg(windows)]
 use winapi::shared::winerror::ERROR_SUCCESS;
@@ -16,9 +22,9 @@ use winapi::um::winbase::FormatMessageW;
 #[cfg(windows)]
 use winapi::um::winbase::{FORMAT_MESSAGE_FROM_SYSTEM, FORMAT_MESSAGE_ALLOCATE_BUFFER, FORMAT_MESSAGE_IGNORE_INSERTS};
 #[cfg(windows)]
-use winapi::um::memoryapi::LocalFree;
+use winapi::um::winbase::LocalFree;
 #[cfg(windows)]
-use std::os::windows::ffi::OsStringExt;
+use std::ffi::OsString;
 
 use colored::*;
 
@@ -149,9 +155,8 @@ fn get_last_error_message() -> String {
 
 #[cfg(windows)]
 fn name_to_sid(name: &str, _domain: Option<&str>) -> Result<Vec<u8>, u32> {
-    use std::mem::{self, MaybeUninit};
+    use std::mem;
     use std::ptr::null_mut;
-    use std::os::windows::ffi::OsStrExt;
     use winapi::um::winbase::LookupAccountNameW;
     use winapi::um::winnt::SID_NAME_USE;
 

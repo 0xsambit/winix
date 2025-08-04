@@ -1,42 +1,15 @@
 use colored::*;
 #[cfg(windows)]
-use std::os::windows::ffi::OsStrExt;
-
-#[cfg(windows)]
 use winapi::um::winnt::*;
-
-#[cfg(windows)]
-use winapi::um::handleapi::*;
-#[cfg(windows)]
-use winapi::um::processthreadsapi::*;
-#[cfg(windows)]
-use winapi::um::securitybaseapi::*;
-#[cfg(windows)]
-use winapi::shared::winerror::*;
-#[cfg(windows)]
-use winapi::um::accctrl::*;
-#[cfg(windows)]
-use winapi::um::aclapi::*;
-
 #[cfg(windows)]
 use windows_acl::acl::ACL;
 #[cfg(windows)]
 use windows_acl::helper::*;
 
 #[cfg(windows)]
-use winapi::um::winnt::{PSID, TOKEN_USER, TokenUser, OWNER_SECURITY_INFORMATION};
-#[cfg(windows)]
-use winapi::um::processthreadsapi::{OpenProcessToken, GetCurrentProcess};
-#[cfg(windows)]
-use winapi::um::securitybaseapi::GetTokenInformation;
-#[cfg(windows)]
-use winapi::um::handleapi::CloseHandle;
+use winapi::um::winnt::{PSID};
 #[cfg(windows)]
 const TOKEN_QUERY: u32 = 0x0008;
-
-
-
-
 
 pub fn execute(args: &[&str]) {
     if args.len() < 2 {

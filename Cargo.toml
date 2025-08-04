@@ -41,7 +41,8 @@ winapi = { version = "0.3.9", features = [
     "accctrl",
     "aclapi",
     "winnt",
-    "winbase"
+    "winbase",
+    "memoryapi"
 ] }
 windows-acl = "0.3.0"
 
