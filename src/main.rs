@@ -4,42 +4,52 @@ use rustyline::error::ReadlineError;
 use std::env as std_env;
 use std::fs;
 use std::io::{self};
-use winix::{echo, touch, env, nproc};
+use winix::{echo, env, nproc, touch};
 
 mod cat;
 mod cd;
-mod mkdir;
-mod rmdir;
-mod tree;
-mod cp;
-mod traceroute;
-mod sysinfo;
 #[cfg(windows)]
 mod chmod;
 #[cfg(windows)]
 mod chown;
+mod cp;
 mod df;
-mod disown;
 mod free;
 mod git;
+mod grep;
+mod gzip;
+mod head;
 mod input;
+mod ip;
 #[cfg(windows)]
 mod kill;
+mod lsof;
+mod mkdir;
+mod mount;
+mod nice;
 mod powershell;
 mod ps;
+mod renice;
 mod rm;
+mod rmdir;
 mod sensors;
-mod sudo;
+mod sysinfo;
+mod tail;
+mod traceroute;
+mod tree;
 mod tui;
+mod ulimit;
+mod umount;
 mod uname;
 mod uptime;
+mod wc;
+mod zcat;
 
 fn main() {
     let args: Vec<String> = std_env::args().collect();
     if args.contains(&"--interactive".to_string()) {
         git::interactive_mode();
     }
-    let _ = rm(vec!["test.txt"]).expect("Failed to remove file");
     if args.len() > 1 && args[1] == "--cli" {
         run_cli();
     } else {
@@ -122,6 +132,50 @@ fn handle_command(line: &str) {
 
         "echo" => echo::run(&args),
         "touch" => touch::run(&args),
+        "cat" => {
+            if args.is_empty() {
+                println!("{}", "Usage: cat <file1> [file2] ...".red());
+            } else {
+                match cat::cat(args.iter().map(String::as_str).collect()) {
+                    Ok(output) => print!("{}", output),
+                    Err(e) => println!("{}", format!("cat: {}", e).red()),
+                }
+            }
+        }
+        "grep" => {
+            if args.len() < 2 {
+                println!("{}", "Usage: grep <pattern> <file1> [file2] ...".red());
+            } else {
+                let pattern = &args[0];
+                let files: Vec<&str> = args[1..].iter().map(String::as_str).collect();
+                match grep::grep_sync(pattern, files) {
+                    Ok(output) => print!("{}", output),
+                    Err(e) => println!("{}", format!("grep: {}", e).red()),
+                }
+            }
+        }
+        "head" => {
+            if args.is_empty() {
+                println!("{}", "Usage: head <file1> [file2] ...".red());
+            } else {
+                let files: Vec<&str> = args.iter().map(String::as_str).collect();
+                match head::head_sync(files, 10) {
+                    Ok(output) => print!("{}", output),
+                    Err(e) => println!("{}", format!("head: {}", e).red()),
+                }
+            }
+        }
+        "tail" => {
+            if args.is_empty() {
+                println!("{}", "Usage: tail <file1> [file2] ...".red());
+            } else {
+                let files: Vec<&str> = args.iter().map(String::as_str).collect();
+                match tail::tail_sync(files, 10) {
+                    Ok(output) => print!("{}", output),
+                    Err(e) => println!("{}", format!("tail: {}", e).red()),
+                }
+            }
+        }
         "uname" => uname::execute(),
         "ps" => ps::execute(),
         "sensors" => sensors::execute(),
@@ -180,11 +234,9 @@ fn handle_command(line: &str) {
             if args.is_empty() {
                 println!("{}", "Usage: rm <file1> [file2] ...".red());
             } else {
-                for file in &args {
-                    match fs::remove_file(file) {
-                        Ok(_) => println!("Deleted {}", file),
-                        Err(e) => eprintln!("Failed to delete {}: {}", file, e),
-                    }
+                match rm(args.iter().map(String::as_str).collect()) {
+                    Ok(_) => {}
+                    Err(e) => println!("{}", format!("rm: {}", e).red()),
                 }
             }
         }
@@ -201,8 +253,8 @@ fn handle_command(line: &str) {
             }
         }
         "git" => {
-            let git_args = &["status"]; // Replace with real input
-            git::execute(git_args);
+            let git_args: Vec<&str> = args.iter().map(String::as_str).collect();
+            git::execute(&git_args);
         }
         "psh" | "powershell" => {
             if args.get(0).map(String::as_str) == Some("--interactive") {
@@ -215,57 +267,125 @@ fn handle_command(line: &str) {
         "help" => {
             show_splash_screen();
         }
-        "mkdir" =>{
-            mkdir::run(&args);
-        }
-
-    "rmdir" => {
-        rmdir::run(&args);
-    }
-
-    "tree" => {
-        tree::run(&args);
-    }
-
-    "cp" => {
-        cp::run(&args);
-    }
-
-    "traceroute" =>{
-        if args.len() < 2 {
-            traceroute::print_usage(&args[0]);
-            return;
-        }
-
-        // let host = &args[1];
-        // let max_hops: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(30);
-        // let probes: u32 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(3);
-        // let timeout_ms: u64 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(2000);
-        // let start_port: u16 = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(33434u16);
-        let host = &args[0];
-        let max_hops: u32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(30);
-        let probes: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
-        let timeout_ms: u64 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(2000);
-        let start_port: u16 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(33434u16);
-
-
-        #[cfg(target_os = "windows")]
-        {
-            traceroute::windows_traceroute(host, max_hops, probes, timeout_ms);
-            return;
-        }
-
-        #[cfg(not(target_os = "windows"))]
-        {
-            if let Err(e) = traceroute::run_traceroute_unix(host, max_hops, probes, timeout_ms, start_port) {
-                eprintln!("Traceroute failed: {}", e);
+        "mkdir" => {
+            if let Err(e) = mkdir::run(&args) {
+                println!("{}", format!("mkdir: {}", e).red());
             }
         }
-    }
 
-    "sysinfo" =>{
-        sysinfo::run();
-    }
+        "rmdir" => {
+            rmdir::run(&args);
+        }
+
+        "tree" => {
+            if let Err(e) = tree::run(&args) {
+                println!("{}", format!("tree: {}", e).red());
+            }
+        }
+
+        "cp" => {
+            if let Err(e) = cp::run(&args) {
+                println!("{}", format!("cp: {}", e).red());
+            }
+        }
+
+        "wc" => {
+            if let Err(e) = wc::run(&args) {
+                println!("{}", format!("wc: {}", e).red());
+            }
+        }
+
+        "gzip" => {
+            if let Err(e) = gzip::run(&args) {
+                println!("{}", format!("gzip: {}", e).red());
+            }
+        }
+
+        "zcat" => {
+            if let Err(e) = zcat::run(&args) {
+                println!("{}", format!("zcat: {}", e).red());
+            }
+        }
+
+        "nice" => {
+            if let Err(e) = nice::run(&args) {
+                println!("{}", format!("nice: {}", e).red());
+            }
+        }
+
+        "renice" => {
+            if let Err(e) = renice::run(&args) {
+                println!("{}", format!("renice: {}", e).red());
+            }
+        }
+
+        "lsof" => {
+            if let Err(e) = lsof::run(&args) {
+                println!("{}", format!("lsof: {}", e).red());
+            }
+        }
+
+        "ip" => {
+            if let Err(e) = ip::run(&args) {
+                println!("{}", format!("ip: {}", e).red());
+            }
+        }
+
+        "ulimit" => {
+            if let Err(e) = ulimit::run(&args) {
+                println!("{}", format!("ulimit: {}", e).red());
+            }
+        }
+
+        "mount" => {
+            if let Err(e) = mount::run(&args) {
+                println!("{}", format!("mount: {}", e).red());
+            }
+        }
+
+        "umount" => {
+            if let Err(e) = umount::run(&args) {
+                println!("{}", format!("umount: {}", e).red());
+            }
+        }
+
+        "traceroute" => {
+            if args.is_empty() {
+                traceroute::print_usage("traceroute");
+                return;
+            }
+
+            // let host = &args[1];
+            // let max_hops: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(30);
+            // let probes: u32 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(3);
+            // let timeout_ms: u64 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(2000);
+            // let start_port: u16 = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(33434u16);
+            let host = &args[0];
+            let max_hops: u32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(30);
+            let probes: u32 = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(3);
+            let timeout_ms: u64 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(2000);
+            #[cfg(not(target_os = "windows"))]
+            let start_port: u16 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(33434u16);
+
+            #[cfg(target_os = "windows")]
+            {
+                traceroute::windows_traceroute(host, max_hops, probes, timeout_ms);
+                return;
+            }
+
+            #[cfg(not(target_os = "windows"))]
+            {
+                if let Err(e) =
+                    traceroute::run_traceroute_unix(host, max_hops, probes, timeout_ms, start_port)
+                {
+                    eprintln!("Traceroute failed: {}", e);
+                }
+            }
+        }
+
+        "sysinfo" => {
+            sysinfo::run();
+        }
 
         _ => {
             println!("{}", format!("Unknown command: '{}'", command).red());
@@ -273,7 +393,6 @@ fn handle_command(line: &str) {
         }
     }
 }
-
 
 fn show_splash_screen() {
     println!(
@@ -326,6 +445,19 @@ fn show_splash_screen() {
         "uname".bold().yellow(),
         "env".bold().yellow(),
         "nproc".bold().yellow(),
+    );
+    println!(
+        "  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}",
+        "wc".bold().yellow(),
+        "gzip".bold().yellow(),
+        "zcat".bold().yellow(),
+        "nice".bold().yellow(),
+        "renice".bold().yellow(),
+        "lsof".bold().yellow(),
+        "ip".bold().yellow(),
+        "ulimit".bold().yellow(),
+        "mount".bold().yellow(),
+        "umount".bold().yellow(),
     );
     println!();
 }

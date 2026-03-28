@@ -5,7 +5,7 @@ use std::thread;
 use winapi::{
     shared::basetsd::DWORD_PTR,
     um::{
-        processthreadsapi::{GetCurrentProcess},
+        processthreadsapi::GetCurrentProcess,
         sysinfoapi::{GetSystemInfo, SYSTEM_INFO},
         winbase::GetProcessAffinityMask,
     },
@@ -423,7 +423,10 @@ mod tests {
         assert!(available > 0, "Available CPUs should be at least 1");
         assert!(total > 0, "Total CPUs should be at least 1");
         assert!(online > 0, "Online CPUs should be at least 1");
-        assert!(available <= total, "Available CPUs should not exceed total CPUs");
+        assert!(
+            available <= total,
+            "Available CPUs should not exceed total CPUs"
+        );
         assert!(online <= total, "Online CPUs should not exceed total CPUs");
     }
 
@@ -490,22 +493,34 @@ mod tests {
     #[test]
     fn test_get_processor_count() {
         // default (available)
-        let cfg = NprocConfig { show_all: false, ignore_count: 0 };
+        let cfg = NprocConfig {
+            show_all: false,
+            ignore_count: 0,
+        };
         let count = get_processor_count(&cfg);
         assert!(count > 0);
 
         // ignore 1
-        let cfg = NprocConfig { show_all: false, ignore_count: 1 };
+        let cfg = NprocConfig {
+            show_all: false,
+            ignore_count: 1,
+        };
         let count = get_processor_count(&cfg);
         assert!(count > 0); // always at least 1
 
         // large ignore -> clamped to 1
-        let cfg = NprocConfig { show_all: false, ignore_count: 1000 };
+        let cfg = NprocConfig {
+            show_all: false,
+            ignore_count: 1000,
+        };
         let count = get_processor_count(&cfg);
         assert_eq!(count, 1);
 
         // show all
-        let cfg = NprocConfig { show_all: true, ignore_count: 0 };
+        let cfg = NprocConfig {
+            show_all: true,
+            ignore_count: 0,
+        };
         let count = get_processor_count(&cfg);
         assert!(count > 0);
     }
@@ -521,11 +536,19 @@ mod tests {
 
     #[test]
     fn test_cpu_info_display() {
-        let info = CpuInfo { available: 4, total: 8, online: 8 };
+        let info = CpuInfo {
+            available: 4,
+            total: 8,
+            online: 8,
+        };
         let display = format!("{}", info);
         assert!(display.contains("4/8"));
 
-        let info2 = CpuInfo { available: 8, total: 8, online: 8 };
+        let info2 = CpuInfo {
+            available: 8,
+            total: 8,
+            online: 8,
+        };
         let display2 = format!("{}", info2);
         assert!(display2.contains("8 CPUs"));
     }

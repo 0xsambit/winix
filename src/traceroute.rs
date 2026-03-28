@@ -1,22 +1,28 @@
 use std::env;
-use std::net::{SocketAddr, ToSocketAddrs, UdpSocket, IpAddr, Ipv4Addr};
-use std::time::{Duration, Instant};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, ToSocketAddrs, UdpSocket};
 use std::process::Command;
+use std::time::{Duration, Instant};
 
 #[cfg(not(target_os = "windows"))]
-use socket2::{Socket, Domain, Type, Protocol, SockAddr};
+use socket2::{Domain, Protocol, SockAddr, Socket, Type};
 #[cfg(not(target_os = "windows"))]
 use std::mem::MaybeUninit;
 
 pub fn print_usage(prog: &str) {
-    eprintln!("Usage: {} <host> [max_hops] [probes_per_hop] [timeout_ms] [start_port]", prog);
+    eprintln!(
+        "Usage: {} <host> [max_hops] [probes_per_hop] [timeout_ms] [start_port]",
+        prog
+    );
     eprintln!("Example: {} google.com 30 3 2000 33434", prog);
 }
 
 fn resolve_host(host: &str) -> Option<IpAddr> {
     // prefer IPv4 for this traceroute
     match (host, 0).to_socket_addrs() {
-        Ok(mut iter) => iter.find_map(|s| match s.ip() { IpAddr::V4(v4) => Some(IpAddr::V4(v4)), _ => None }),
+        Ok(mut iter) => iter.find_map(|s| match s.ip() {
+            IpAddr::V4(v4) => Some(IpAddr::V4(v4)),
+            _ => None,
+        }),
         Err(_) => None,
     }
 }
@@ -38,7 +44,13 @@ pub fn windows_traceroute(host: &str, max_hops: u32, probes: u32, timeout_ms: u6
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn run_traceroute_unix(host: &str, max_hops: u32, probes: u32, timeout_ms: u64, start_port: u16) -> std::io::Result<()> {
+pub fn run_traceroute_unix(
+    host: &str,
+    max_hops: u32,
+    probes: u32,
+    timeout_ms: u64,
+    start_port: u16,
+) -> std::io::Result<()> {
     // Resolve host IPv4
     let ip = match resolve_host(host) {
         Some(IpAddr::V4(v4)) => v4,
@@ -52,7 +64,10 @@ pub fn run_traceroute_unix(host: &str, max_hops: u32, probes: u32, timeout_ms: u
         }
     };
 
-    println!("traceroute to {} ({}), {} hops max, {} probes per hop", host, ip, max_hops, probes);
+    println!(
+        "traceroute to {} ({}), {} hops max, {} probes per hop",
+        host, ip, max_hops, probes
+    );
 
     // Raw socket to receive ICMP replies (needs root)
     let recv_sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))?;

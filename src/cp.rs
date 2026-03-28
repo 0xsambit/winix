@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use std::io;
 
@@ -20,4 +19,3 @@ pub fn run(args: &[String]) -> io::Result<()> {
 
     Ok(())
 }
-

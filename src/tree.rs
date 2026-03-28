@@ -7,7 +7,12 @@ use std::path::{Path, PathBuf};
 fn print_tree(path: &Path, prefix: &str, is_last: bool) {
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
 
-    println!("{}{}{}", prefix, if is_last { "└── " } else { "├── " }, file_name);
+    println!(
+        "{}{}{}",
+        prefix,
+        if is_last { "└── " } else { "├── " },
+        file_name
+    );
 
     if let Ok(entries) = fs::read_dir(path) {
         let entries: Vec<_> = entries.filter_map(|e| e.ok()).collect();

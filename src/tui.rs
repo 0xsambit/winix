@@ -1322,7 +1322,8 @@ fn capture_env_output(args: &[String]) -> String {
         let mut env_vars: Vec<_> = std::env::vars().collect();
         env_vars.sort_by(|a, b| a.0.cmp(&b.0));
 
-        for (key, value) in env_vars.iter().take(20) { // Limit to first 20 for display
+        for (key, value) in env_vars.iter().take(20) {
+            // Limit to first 20 for display
             output.push_str(&format!("{}={}\n", key, value));
         }
 
@@ -1340,9 +1341,7 @@ fn capture_env_output(args: &[String]) -> String {
 fn capture_nproc_output(args: &[String]) -> String {
     // Use the actual nproc implementation
     match nproc::get_available_cpus() {
-        _count if args.contains(&"--all".to_string()) => {
-            nproc::get_total_cpus().to_string()
-        }
+        _count if args.contains(&"--all".to_string()) => nproc::get_total_cpus().to_string(),
         count => count.to_string(),
     }
 }

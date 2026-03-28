@@ -127,6 +127,7 @@ pub async fn grep_async_to_string<S: AsRef<Path> + Send + 'static>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[test]
     fn test_grep_sync() {
@@ -144,17 +145,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_grep_async() {
-        let file_path = "test_grep_async.txt";
+        let temp_dir = tempdir().unwrap();
+        let file_path = temp_dir.path().join("test_grep_async.txt");
         let content = "hello world\nthis is a test\nhello again\nbye world";
 
-        tokio::fs::write(file_path, content).await.unwrap();
+        tokio::fs::write(&file_path, content).await.unwrap();
 
         let result = grep_async_to_string("hello", vec![file_path])
             .await
             .unwrap();
         assert!(result.contains("hello world"));
         assert!(result.contains("hello again"));
-
-        tokio::fs::remove_file(file_path).await.unwrap();
     }
 }

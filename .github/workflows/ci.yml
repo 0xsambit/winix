@@ -1,0 +1,75 @@
+name: CI
+
+on:
+     push:
+          branches: ["**"]
+     pull_request:
+
+jobs:
+     test-linux:
+          name: Linux Tests and Lint
+          runs-on: ubuntu-latest
+
+          steps:
+               - name: Checkout
+                 uses: actions/checkout@v4
+
+               - name: Install Rust toolchain
+                 uses: dtolnay/rust-toolchain@stable
+                 with:
+                      components: clippy, rustfmt
+
+               - name: Cache cargo artifacts
+                 uses: Swatinem/rust-cache@v2
+
+               - name: Format check
+                 run: cargo fmt --all -- --check
+
+               - name: Build
+                 run: cargo build --verbose
+
+               - name: Run tests
+                 run: cargo test --verbose
+
+               - name: Run linux command suite tests
+                 run: cargo test --test linux_commands_test --verbose
+
+               - name: Clippy strict (new Linux command modules)
+                 run: >
+                      cargo clippy --
+                      -D warnings
+                      -A clippy::module_name_repetitions
+                      -A dead_code
+                      -A unused_imports
+                      -A unreachable_code
+
+               - name: Clippy full report (non-blocking)
+                 run: cargo clippy || true
+
+     test-windows:
+          name: Windows Tests
+          runs-on: windows-latest
+
+          steps:
+               - name: Checkout
+                 uses: actions/checkout@v4
+
+               - name: Install Rust toolchain
+                 uses: dtolnay/rust-toolchain@stable
+                 with:
+                      components: clippy, rustfmt
+
+               - name: Cache cargo artifacts
+                 uses: Swatinem/rust-cache@v2
+
+               - name: Format check
+                 run: cargo fmt --all -- --check
+
+               - name: Build
+                 run: cargo build --verbose
+
+               - name: Run tests
+                 run: cargo test --verbose
+
+               - name: Run linux command suite tests
+                 run: cargo test --test linux_commands_test --verbose

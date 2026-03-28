@@ -23,7 +23,7 @@ A high-performance command-line utility that brings essential Unix/Linux functio
 
 ---
 
-## 🚀 Welcome to Winix 
+## 🚀 Welcome to Winix
 
 Winix is a cross-platform command-line application designed to bridge the gap between Unix/Linux and Windows environments. Built with Rust for optimal performance and reliability, it provides native implementations of essential Unix commands that Windows users frequently need.
 
@@ -39,6 +39,26 @@ Winix is a cross-platform command-line application designed to bridge the gap be
 - **Comprehensive Command Suite:** Includes `chmod`, `chown`, `uname`, `ps`, `cat`, `grep`, `head`, `tail`, and more.
 - **Command Pipelines:** Chain multiple commands together for complex data processing workflows.
 - **Extensible Architecture:** Easily add new commands and features.
+
+### Linux-First Commands Added
+
+The latest command set includes these Linux-first utilities:
+
+- `wc`
+- `gzip`
+- `zcat`
+- `nice`
+- `renice`
+- `lsof`
+- `ip`
+- `ulimit`
+- `mount`
+- `umount`
+
+Platform behavior:
+
+- On Unix/Linux targets, commands execute their functional path.
+- On Windows, Linux-specific commands print a clear unsupported/fallback message.
 
 ---
 
@@ -96,7 +116,8 @@ let result = execute_pipeline(pipeline).await?;
 
 ---
 
-## 🤝 How to Contribute - 
+## 🤝 How to Contribute -
+
 ### Check - [Discussions](https://github.com/0xsambit/winix/discussions) before going forward
 
 We welcome all contributions! Whether you're fixing bugs, adding features, improving documentation, or helping others, your input is valued.
@@ -104,28 +125,28 @@ We welcome all contributions! Whether you're fixing bugs, adding features, impro
 ### Step-by-Step Contribution Guide
 
 1. **Fork the Repository**
-   - Click the "Fork" button on GitHub to create your own copy.
+     - Click the "Fork" button on GitHub to create your own copy.
 2. **Clone Your Fork**
-   - `git clone https://github.com/<your-username>/winix.git`
+     - `git clone https://github.com/<your-username>/winix.git`
 3. **Create a Branch**
-   - `git checkout -b feature/your-feature-name`
+     - `git checkout -b feature/your-feature-name`
 4. **Make Changes**
-   - Implement your feature or fix in the appropriate module.
-   - Follow the code style and formatting standards (see below).
-   - Run `cargo run`
+     - Implement your feature or fix in the appropriate module.
+     - Follow the code style and formatting standards (see below).
+     - Run `cargo run`
 5. **Test Your Changes**
-   - Run `cargo test` to ensure all tests pass.
+     - Run `cargo test` to ensure all tests pass.
 6. **Commit and Push**
-   - `git add .`
-   - `git commit -m "Add <feature/fix>"`
-   - `git push origin feature/your-feature-name`
+     - `git add .`
+     - `git commit -m "Add <feature/fix>"`
+     - `git push origin feature/your-feature-name`
 7. **Open a Pull Request**
-   - Go to your fork on GitHub and click "New Pull Request".
-   - Fill in a clear description of your changes.
+     - Go to your fork on GitHub and click "New Pull Request".
+     - Fill in a clear description of your changes.
 8. **Respond to Reviews**
-   - Address feedback and make necessary updates.
-  
- Most importantly, create a upstream to the main branch of the repo, and pull all the changes as soon as the main branch updates. If any PR causes any wrong change in any other part, than what was pushed, it will be immediately revoked and no further points will be given.
+     - Address feedback and make necessary updates.
+
+Most importantly, create a upstream to the main branch of the repo, and pull all the changes as soon as the main branch updates. If any PR causes any wrong change in any other part, than what was pushed, it will be immediately revoked and no further points will be given.
 
 ### Code Style & Standards
 
@@ -136,7 +157,8 @@ We welcome all contributions! Whether you're fixing bugs, adding features, impro
 - For async features, use Tokio runtime and follow async/await best practices.
 
 ### Issue Reporting
-- Firstly, use the [Github Discussions](https://github.com/0xsambit/winix/discussions) to discuss which issues to work on and talk about the features or any questions about the project. Everything related to the project has to be first address in the discussions under appropriate category, only after then issues will be assigned. 
+
+- Firstly, use the [Github Discussions](https://github.com/0xsambit/winix/discussions) to discuss which issues to work on and talk about the features or any questions about the project. Everything related to the project has to be first address in the discussions under appropriate category, only after then issues will be assigned.
 - Use [GitHub Issues](https://github.com/0xsambit/winix/issues) for bugs, feature requests, and questions.
 - Provide detailed steps to reproduce bugs.
 - It is important to note that if the PA doesn't assign an issue to you, and you complete the PR, it will still be accepted ( if it is correct ) , but no points will be given
@@ -154,7 +176,8 @@ Contributing to Winix means helping build a tool that empowers Windows users wit
 
 ---
 
-## 🆘 Getting Help - 
+## 🆘 Getting Help -
+
 ### Check [Guidlines](https://github.com/0xsambit/winix/blob/master/CONTRIBUTION.md)
 
 If you need help:
@@ -184,6 +207,7 @@ We are committed to fostering a welcoming and inclusive environment. Please read
 Thanks to everyone who has contributed to Winix!
 
 <!-- Contributors badge (auto-updating) -->
+
 [![Contributors](https://img.shields.io/github/contributors/0xsambit/winix?style=for-the-badge)](https://github.com/0xsambit/winix/graphs/contributors)
 
 <!-- Contributors avatars (auto-updating) -->

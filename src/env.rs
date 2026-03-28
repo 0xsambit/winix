@@ -1,7 +1,7 @@
+use colored::*;
 use std::collections::HashMap;
 use std::env as std_env;
 use std::process::Command;
-use colored::*;
 
 /// Configuration for the env command
 #[derive(Debug, Default)]
@@ -200,9 +200,7 @@ fn run_command_with_env(config: &EnvConfig) -> i32 {
     let status = run_directly(program, args, config);
 
     match status {
-        Ok(exit_status) => {
-            exit_status.code().unwrap_or(1)
-        }
+        Ok(exit_status) => exit_status.code().unwrap_or(1),
         Err(e) => {
             // If direct execution fails, it might be a shell built-in or need shell expansion
             // Try with shell
@@ -218,7 +216,11 @@ fn run_command_with_env(config: &EnvConfig) -> i32 {
 }
 
 /// Run command directly without shell
-fn run_directly(program: &str, args: &[String], config: &EnvConfig) -> Result<std::process::ExitStatus, std::io::Error> {
+fn run_directly(
+    program: &str,
+    args: &[String],
+    config: &EnvConfig,
+) -> Result<std::process::ExitStatus, std::io::Error> {
     let mut cmd = Command::new(program);
     cmd.args(args);
     apply_environment_to_command(&mut cmd, config);
@@ -226,12 +228,20 @@ fn run_directly(program: &str, args: &[String], config: &EnvConfig) -> Result<st
 }
 
 /// Run command through shell for built-in commands or when direct execution fails
-fn run_with_shell(program: &str, args: &[String], config: &EnvConfig) -> Result<std::process::ExitStatus, std::io::Error> {
+fn run_with_shell(
+    program: &str,
+    args: &[String],
+    config: &EnvConfig,
+) -> Result<std::process::ExitStatus, std::io::Error> {
     #[cfg(windows)]
     {
         // On Windows, we need to be careful with command construction
         // Check if this is a Unix-style shell (bash, sh) being invoked
-        if program == "bash" || program == "sh" || program.ends_with("/bash") || program.ends_with("/sh") {
+        if program == "bash"
+            || program == "sh"
+            || program.ends_with("/bash")
+            || program.ends_with("/sh")
+        {
             // For Unix shells on Windows (e.g., Git Bash, WSL), pass arguments directly
             let mut cmd = Command::new(program);
             cmd.args(args);
@@ -276,7 +286,11 @@ fn run_with_shell(program: &str, args: &[String], config: &EnvConfig) -> Result<
     {
         // On Unix-like systems, if we're calling bash or sh directly with -c,
         // we should pass the arguments as-is, not reconstruct them
-        if program == "bash" || program == "sh" || program.ends_with("/bash") || program.ends_with("/sh") {
+        if program == "bash"
+            || program == "sh"
+            || program.ends_with("/bash")
+            || program.ends_with("/sh")
+        {
             let mut cmd = Command::new(program);
             cmd.args(args);
             apply_environment_to_command(&mut cmd, config);
@@ -302,11 +316,22 @@ fn run_with_shell(program: &str, args: &[String], config: &EnvConfig) -> Result<
             full_command.push(' ');
 
             // If argument contains special characters, quote it
-            if arg.contains(' ') || arg.contains('\'') || arg.contains('"') || 
-               arg.contains('$') || arg.contains('*') || arg.contains('?') ||
-               arg.contains('&') || arg.contains('|') || arg.contains(';') ||
-               arg.contains('(') || arg.contains(')') || arg.contains('<') ||
-               arg.contains('>') || arg.contains('`') || arg.contains('\\') {
+            if arg.contains(' ')
+                || arg.contains('\'')
+                || arg.contains('"')
+                || arg.contains('$')
+                || arg.contains('*')
+                || arg.contains('?')
+                || arg.contains('&')
+                || arg.contains('|')
+                || arg.contains(';')
+                || arg.contains('(')
+                || arg.contains(')')
+                || arg.contains('<')
+                || arg.contains('>')
+                || arg.contains('`')
+                || arg.contains('\\')
+            {
                 // Use single quotes and escape any single quotes in the argument
                 full_command.push_str(&format!("'{}'", arg.replace('\'', "'\\''")));
             } else {
@@ -451,7 +476,10 @@ fn apply_environment_to_command(cmd: &mut Command, config: &EnvConfig) {
 
 /// Show help information
 fn show_help() {
-    println!("{}", "env - Display and modify environment variables".bold());
+    println!(
+        "{}",
+        "env - Display and modify environment variables".bold()
+    );
     println!();
     println!("{}", "USAGE:".bold());
     println!("    env [OPTION]... [NAME=VALUE]... [COMMAND [ARG]...]");
@@ -560,15 +588,19 @@ mod tests {
     #[test]
     fn test_expand_env_vars() {
         let mut config = EnvConfig::default();
-        config.set_vars.insert("TEST".to_string(), "value".to_string());
+        config
+            .set_vars
+            .insert("TEST".to_string(), "value".to_string());
         config.set_vars.insert("FOO".to_string(), "bar".to_string());
-        config.set_vars.insert("TEST_suffix".to_string(), "another_value".to_string());
+        config
+            .set_vars
+            .insert("TEST_suffix".to_string(), "another_value".to_string());
 
         // Test $VAR expansion
         assert_eq!(expand_env_vars("$TEST", &config), "value");
         assert_eq!(expand_env_vars("prefix_$TEST", &config), "prefix_value");
 
-        // This is the key test case - $TEST_suffix should NOT expand $TEST 
+        // This is the key test case - $TEST_suffix should NOT expand $TEST
         // because TEST_suffix is a different variable name
         assert_eq!(expand_env_vars("$TEST_suffix", &config), "another_value");
 
@@ -577,11 +609,17 @@ mod tests {
 
         // Test ${VAR} expansion
         assert_eq!(expand_env_vars("${TEST}", &config), "value");
-        assert_eq!(expand_env_vars("prefix_${TEST}_suffix", &config), "prefix_value_suffix");
+        assert_eq!(
+            expand_env_vars("prefix_${TEST}_suffix", &config),
+            "prefix_value_suffix"
+        );
 
         // Test multiple variables
         assert_eq!(expand_env_vars("$TEST and $FOO", &config), "value and bar");
-        assert_eq!(expand_env_vars("${TEST} and ${FOO}", &config), "value and bar");
+        assert_eq!(
+            expand_env_vars("${TEST} and ${FOO}", &config),
+            "value and bar"
+        );
 
         // Test non-existent variable (should remain unchanged)
         assert_eq!(expand_env_vars("$NONEXISTENT", &config), "$NONEXISTENT");
@@ -592,7 +630,7 @@ mod tests {
         assert_eq!(expand_env_vars("${", &config), "${");
         assert_eq!(expand_env_vars("${TEST", &config), "${TEST");
         assert_eq!(expand_env_vars("$$TEST", &config), "$value");
- 
+
         // Test with special characters that end variable names
         assert_eq!(expand_env_vars("$TEST-dash", &config), "value-dash");
         assert_eq!(expand_env_vars("$TEST.dot", &config), "value.dot");
@@ -603,7 +641,9 @@ mod tests {
     #[test]
     fn test_build_modified_environment() {
         let mut config = EnvConfig::default();
-        config.set_vars.insert("TEST_VAR".to_string(), "test_value".to_string());
+        config
+            .set_vars
+            .insert("TEST_VAR".to_string(), "test_value".to_string());
 
         let env = build_modified_environment(&config);
         assert_eq!(env.get("TEST_VAR"), Some(&"test_value".to_string()));

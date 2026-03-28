@@ -61,15 +61,14 @@ impl AsyncCommand for CatGrepPipeline {
             // Step 1: Run cat
             let cat_output = cat_async_to_string(files).await?;
 
-            // Step 2: Write to temp file
-            let temp_file = "temp_pipeline.txt";
-            tokio::fs::write(temp_file, &cat_output).await?;
+            // Step 2: Write to a unique temp file to avoid cross-test collisions.
+            let temp_dir = tempfile::tempdir()?;
+            let temp_file = temp_dir.path().join("pipeline_input.txt");
+            tokio::fs::write(&temp_file, &cat_output).await?;
 
             // Step 3: Run grep
-            let result = grep_async_to_string(&pattern, vec![temp_file.to_string()]).await;
-
-            // Step 4: Cleanup
-            let _ = tokio::fs::remove_file(temp_file).await;
+            let result =
+                grep_async_to_string(&pattern, vec![temp_file.to_string_lossy().to_string()]).await;
 
             result
         })
@@ -102,12 +101,11 @@ impl AsyncCommand for CatHeadPipeline {
         Box::pin(async move {
             let cat_output = cat_async_to_string(files.clone()).await?;
 
-            let temp_file = "temp_head_pipeline.txt";
-            tokio::fs::write(temp_file, cat_output).await?;
+            let temp_dir = tempfile::tempdir()?;
+            let temp_file = temp_dir.path().join("head_pipeline_input.txt");
+            tokio::fs::write(&temp_file, cat_output).await?;
 
             let result = head_async_to_string(vec![temp_file], lines).await;
-
-            let _ = tokio::fs::remove_file(temp_file).await;
             result
         })
     }
@@ -121,31 +119,35 @@ pub async fn execute_pipeline<C: AsyncCommand<Input = ()>>(command: C) -> io::Re
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile::tempdir;
 
     #[tokio::test]
     async fn test_cat_grep_pipeline() {
-        let file_path = "test_pipeline.txt";
+        let temp_dir = tempdir().unwrap();
+        let file_path = temp_dir.path().join("test_pipeline.txt");
         let content = "hello world\nthis is a test\nhello again\nbye world";
 
-        tokio::fs::write(file_path, content).await.unwrap();
+        tokio::fs::write(&file_path, content).await.unwrap();
 
-        let pipeline = CatGrepPipeline::new(vec![file_path.to_string()], "hello".to_string());
+        let pipeline = CatGrepPipeline::new(
+            vec![file_path.to_string_lossy().to_string()],
+            "hello".to_string(),
+        );
 
         let result = execute_pipeline(pipeline).await.unwrap();
         assert!(result.contains("hello world"));
         assert!(result.contains("hello again"));
-
-        tokio::fs::remove_file(file_path).await.unwrap();
     }
 
     #[tokio::test]
     async fn test_cat_head_pipeline() {
-        let file_path = "test_head_pipeline.txt";
+        let temp_dir = tempdir().unwrap();
+        let file_path = temp_dir.path().join("test_head_pipeline.txt");
         let content = "line 1\nline 2\nline 3\nline 4\nline 5";
 
-        tokio::fs::write(file_path, content).await.unwrap();
+        tokio::fs::write(&file_path, content).await.unwrap();
 
-        let pipeline = CatHeadPipeline::new(vec![file_path.to_string()], 3);
+        let pipeline = CatHeadPipeline::new(vec![file_path.to_string_lossy().to_string()], 3);
 
         let result = execute_pipeline(pipeline).await.unwrap();
         let lines: Vec<&str> = result.lines().collect();
@@ -153,7 +155,5 @@ mod tests {
         assert_eq!(lines[0], "line 1");
         assert_eq!(lines[1], "line 2");
         assert_eq!(lines[2], "line 3");
-
-        tokio::fs::remove_file(file_path).await.unwrap();
     }
 }

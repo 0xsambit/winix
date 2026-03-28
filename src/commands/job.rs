@@ -1,22 +1,22 @@
 #![allow(non_snake_case)]
-use std::io;
-use std::ptr;
 use std::ffi::OsStr;
+use std::io;
 use std::iter::once;
 use std::os::windows::ffi::OsStrExt;
+use std::ptr;
 
-#[cfg(target_os = "windows")]
-use winapi::um::jobapi2::{CreateJobObjectW, AssignProcessToJobObject, TerminateJobObject};
-#[cfg(target_os = "windows")]
-use winapi::um::processthreadsapi::OpenProcess;
-#[cfg(target_os = "windows")]
-use winapi::um::handleapi::CloseHandle;
-#[cfg(target_os = "windows")]
-use winapi::um::winnt::PROCESS_ALL_ACCESS;
 #[cfg(target_os = "windows")]
 use winapi::shared::minwindef::FALSE;
 #[cfg(target_os = "windows")]
 use winapi::shared::ntdef::NULL;
+#[cfg(target_os = "windows")]
+use winapi::um::handleapi::CloseHandle;
+#[cfg(target_os = "windows")]
+use winapi::um::jobapi2::{AssignProcessToJobObject, CreateJobObjectW, TerminateJobObject};
+#[cfg(target_os = "windows")]
+use winapi::um::processthreadsapi::OpenProcess;
+#[cfg(target_os = "windows")]
+use winapi::um::winnt::PROCESS_ALL_ACCESS;
 
 #[cfg(target_os = "windows")]
 pub struct Job {

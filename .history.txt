@@ -1,8 +1,4 @@
 #V2
-winix
-hello
-winix
-hello winix
 hello
 env
 env MY_VAR=hello echo $MY_VAR 
@@ -99,3 +95,7 @@ exit
 hello
 env GREETING="Hello Shizain" bash -c 'echo $GREETING'
 exit
+hello
+pwd
+uptime
+hello
