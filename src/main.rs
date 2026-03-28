@@ -6,6 +6,7 @@ use std::fs;
 use std::io::{self};
 use winix::{echo, env, nproc, touch};
 
+mod awk;
 mod cat;
 mod cd;
 #[cfg(windows)]
@@ -13,36 +14,55 @@ mod chmod;
 #[cfg(windows)]
 mod chown;
 mod cp;
+mod curl;
+mod cut;
 mod df;
+mod diff;
+mod du;
+mod find;
 mod free;
 mod git;
 mod grep;
 mod gzip;
 mod head;
+mod id;
 mod input;
 mod ip;
 #[cfg(windows)]
 mod kill;
+mod ln;
 mod lsof;
 mod mkdir;
 mod mount;
 mod nice;
 mod powershell;
 mod ps;
+mod realpath;
 mod renice;
 mod rm;
 mod rmdir;
+mod sed;
 mod sensors;
+mod sort;
+mod split;
+mod stat;
 mod sysinfo;
 mod tail;
+mod tee;
+mod top;
+mod tr;
 mod traceroute;
 mod tree;
 mod tui;
 mod ulimit;
 mod umount;
 mod uname;
+mod uniq;
 mod uptime;
 mod wc;
+mod wget;
+mod whoami;
+mod xargs;
 mod zcat;
 
 fn main() {
@@ -295,6 +315,126 @@ fn handle_command(line: &str) {
             }
         }
 
+        "awk" => {
+            if let Err(e) = awk::run(&args) {
+                println!("{}", format!("awk: {}", e).red());
+            }
+        }
+
+        "sed" => {
+            if let Err(e) = sed::run(&args) {
+                println!("{}", format!("sed: {}", e).red());
+            }
+        }
+
+        "find" => {
+            if let Err(e) = find::run(&args) {
+                println!("{}", format!("find: {}", e).red());
+            }
+        }
+
+        "xargs" => {
+            if let Err(e) = xargs::run(&args) {
+                println!("{}", format!("xargs: {}", e).red());
+            }
+        }
+
+        "cut" => {
+            if let Err(e) = cut::run(&args) {
+                println!("{}", format!("cut: {}", e).red());
+            }
+        }
+
+        "sort" => {
+            if let Err(e) = sort::run(&args) {
+                println!("{}", format!("sort: {}", e).red());
+            }
+        }
+
+        "uniq" => {
+            if let Err(e) = uniq::run(&args) {
+                println!("{}", format!("uniq: {}", e).red());
+            }
+        }
+
+        "ln" => {
+            if let Err(e) = ln::run(&args) {
+                println!("{}", format!("ln: {}", e).red());
+            }
+        }
+
+        "id" => {
+            if let Err(e) = id::run(&args) {
+                println!("{}", format!("id: {}", e).red());
+            }
+        }
+
+        "curl" => {
+            if let Err(e) = curl::run(&args) {
+                println!("{}", format!("curl: {}", e).red());
+            }
+        }
+
+        "whoami" => {
+            if let Err(e) = whoami::run(&args) {
+                println!("{}", format!("whoami: {}", e).red());
+            }
+        }
+
+        "du" => {
+            if let Err(e) = du::run(&args) {
+                println!("{}", format!("du: {}", e).red());
+            }
+        }
+
+        "diff" => {
+            if let Err(e) = diff::run(&args) {
+                println!("{}", format!("diff: {}", e).red());
+            }
+        }
+
+        "wget" => {
+            if let Err(e) = wget::run(&args) {
+                println!("{}", format!("wget: {}", e).red());
+            }
+        }
+
+        "top" => {
+            if let Err(e) = top::run(&args) {
+                println!("{}", format!("top: {}", e).red());
+            }
+        }
+
+        "tr" => {
+            if let Err(e) = tr::run(&args) {
+                println!("{}", format!("tr: {}", e).red());
+            }
+        }
+
+        "tee" => {
+            if let Err(e) = tee::run(&args) {
+                println!("{}", format!("tee: {}", e).red());
+            }
+        }
+
+        "split" => {
+            if let Err(e) = split::run(&args) {
+                println!("{}", format!("split: {}", e).red());
+            }
+        }
+
+        "stat" => {
+            if let Err(e) = stat::run(&args) {
+                println!("{}", format!("stat: {}", e).red());
+            }
+        }
+
+        "realpath" => {
+            if let Err(e) = realpath::run(&args) {
+                println!("{}", format!("realpath: {}", e).red());
+            }
+        }
+
         "gzip" => {
             if let Err(e) = gzip::run(&args) {
                 println!("{}", format!("gzip: {}", e).red());
@@ -458,6 +598,35 @@ fn show_splash_screen() {
         "ulimit".bold().yellow(),
         "mount".bold().yellow(),
         "umount".bold().yellow(),
+    );
+    println!(
+        "  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}\n  {}",
+        "awk".bold().yellow(),
+        "sed".bold().yellow(),
+        "find".bold().yellow(),
+        "xargs".bold().yellow(),
+        "cut".bold().yellow(),
+        "sort".bold().yellow(),
+        "uniq".bold().yellow(),
+        "ln".bold().yellow(),
+        "id".bold().yellow(),
+        "curl".bold().yellow(),
+    );
+    println!(
+        "  {}\n  {}\n  {}\n  {}\n  {}",
+        "whoami".bold().yellow(),
+        "du".bold().yellow(),
+        "diff".bold().yellow(),
+        "wget".bold().yellow(),
+        "top".bold().yellow(),
+    );
+    println!(
+        "  {}\n  {}\n  {}\n  {}\n  {}",
+        "tr".bold().yellow(),
+        "tee".bold().yellow(),
+        "split".bold().yellow(),
+        "stat".bold().yellow(),
+        "realpath".bold().yellow(),
     );
     println!();
 }

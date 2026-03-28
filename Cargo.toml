@@ -27,6 +27,7 @@ futures = "0.3"
 bytes = "1.0"
 rustyline = "13.0"
 flate2 = "1"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
 windows-acl = "0.3"
 libc = "0.2"
 winapi = { version = "0.3.9", features = [

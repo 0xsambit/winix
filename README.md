@@ -54,6 +54,26 @@ The latest command set includes these Linux-first utilities:
 - `ulimit`
 - `mount`
 - `umount`
+- `awk`
+- `sed`
+- `find`
+- `xargs`
+- `cut`
+- `sort`
+- `uniq`
+- `ln`
+- `id`
+- `curl`
+- `whoami`
+- `du`
+- `diff`
+- `wget`
+- `top`
+- `tr`
+- `tee`
+- `split`
+- `stat`
+- `realpath`
 
 Platform behavior:
 
