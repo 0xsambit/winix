@@ -67,6 +67,21 @@ mod zcat;
 
 fn main() {
     let args: Vec<String> = std_env::args().collect();
+
+    if args.len() > 1 && args[1] == "--run" {
+        if args.len() < 3 {
+            eprintln!("Usage: winix --run <command>");
+            std::process::exit(2);
+        }
+
+        let line = args[2..].join(" ");
+        let handled = handle_command(&line);
+        if !handled {
+            std::process::exit(127);
+        }
+        return;
+    }
+
     if args.contains(&"--interactive".to_string()) {
         git::interactive_mode();
     }
@@ -101,7 +116,7 @@ fn run_cli() {
                     break;
                 }
 
-                handle_command(&line);
+                let _ = handle_command(&line);
             }
             Err(ReadlineError::Interrupted) => {
                 println!("^C");
@@ -119,14 +134,16 @@ fn run_cli() {
     }
 }
 
-fn handle_command(line: &str) {
+fn handle_command(line: &str) -> bool {
     let parts: Vec<&str> = line.trim().split_whitespace().collect();
     if parts.is_empty() {
-        return;
+        return true;
     }
 
     let command = parts[0].to_lowercase();
     let args: Vec<String> = parts[1..].iter().map(|s| s.to_string()).collect();
+
+    let mut handled = true;
 
     match command.as_str() {
         "cd" => {
@@ -492,7 +509,7 @@ fn handle_command(line: &str) {
         "traceroute" => {
             if args.is_empty() {
                 traceroute::print_usage("traceroute");
-                return;
+                return true;
             }
 
             // let host = &args[1];
@@ -510,7 +527,7 @@ fn handle_command(line: &str) {
             #[cfg(target_os = "windows")]
             {
                 traceroute::windows_traceroute(host, max_hops, probes, timeout_ms);
-                return;
+                return true;
             }
 
             #[cfg(not(target_os = "windows"))]
@@ -530,8 +547,11 @@ fn handle_command(line: &str) {
         _ => {
             println!("{}", format!("Unknown command: '{}'", command).red());
             println!("{}", "Type 'help' for available commands".dimmed());
+            handled = false;
         }
     }
+
+    handled
 }
 
 fn show_splash_screen() {
