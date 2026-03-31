@@ -70,7 +70,11 @@ pub fn run_traceroute_unix(
     );
 
     // Raw socket to receive ICMP replies (needs root)
-    let recv_sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))?;
+    let recv_sock = Socket::new(
+        Domain::IPV4,
+        Type::from(libc::SOCK_RAW),
+        Some(Protocol::ICMPV4),
+    )?;
     recv_sock.set_read_timeout(Some(Duration::from_millis(timeout_ms)))?;
 
     // UDP socket for sending probes
@@ -91,7 +95,7 @@ pub fn run_traceroute_unix(
             let probe_port = dst_port + (p as u16);
             let dest_sockaddr = SocketAddr::new(IpAddr::V4(ip), probe_port);
 
-            let payload = format!("TRACEROUTE_RUST_{}_{}_{}", ttl, p, rand::random::<u16>());
+            let payload = format!("TRACEROUTE_RUST_{}_{}_{}", ttl, p, probe_port);
             // send probe
             let start = Instant::now();
             if let Err(e) = send_sock.send_to(payload.as_bytes(), dest_sockaddr) {
