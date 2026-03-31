@@ -1,7 +1,7 @@
 use std::env;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, ToSocketAddrs, UdpSocket};
 use std::process::Command;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 #[cfg(not(target_os = "windows"))]
 use socket2::{Domain, Protocol, SockAddr, Socket, Type};
@@ -70,6 +70,7 @@ pub fn run_traceroute_unix(
     );
 
     // Raw socket to receive ICMP replies (needs root)
+    // socket2 v0.5 doesn't expose Type::RAW on this target, so use the raw OS constant.
     let recv_sock = Socket::new(
         Domain::IPV4,
         Type::from(libc::SOCK_RAW),
@@ -95,7 +96,11 @@ pub fn run_traceroute_unix(
             let probe_port = dst_port + (p as u16);
             let dest_sockaddr = SocketAddr::new(IpAddr::V4(ip), probe_port);
 
-            let payload = format!("TRACEROUTE_RUST_{}_{}_{}", ttl, p, probe_port);
+            let probe_id = match SystemTime::now().duration_since(UNIX_EPOCH) {
+                Ok(d) => d.as_nanos(),
+                Err(_) => ((ttl as u128) << 64) | ((p as u128) << 32) | (probe_port as u128),
+            };
+            let payload = format!("TRACEROUTE_RUST_{}_{}_{}", ttl, p, probe_id);
             // send probe
             let start = Instant::now();
             if let Err(e) = send_sock.send_to(payload.as_bytes(), dest_sockaddr) {
